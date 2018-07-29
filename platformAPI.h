@@ -1,12 +1,12 @@
 /*
  * plattformAPI.h
  *
- *  Created on: Jul 28, 2018
+ *  Created on: Nov 29, 2017
  *      Author: simon
  */
 
-#ifndef PLATTFORMAPI_H_
-#define PLATTFORMAPI_H_
+#ifndef INC_PLATFORMAPI_H_
+#define INC_PLATFORMAPI_H_
 
 #include <stdint.h>
 
@@ -135,30 +135,29 @@ uint8_t read_PWRGD_BridgeDriver();
 void switch_PowerLED(uint8_t state);
 
 //========================= SYSTIME ===================================
+void initSystime();
+uint32_t getSystimeUs();
 
-// ---- to be implemented from user ------------------------------------------------------------------------------------------------------------------
-void print(char pTxt[]);
-extern uint8_t serializerPrinterIsEnabled;
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
+#define DELAYED_CALLBACK_REGISTERED 1
+#define DELAYED_CALLBACK_ERROR 2
+#define DELAYED_CALLBACK_IS_BUSY 2
+#define DELAYED_CALLBACK_IS_READY 3
+uint8_t delayedCallback_A(uint32_t time_us, void (*listener)(void));
+uint8_t delayedCallback_B(uint32_t time_us, void (*listener)(void));
+uint8_t delayedCallback_C(uint32_t time_us, void (*listener)(void));
+uint8_t delayedCallback_D(uint32_t time_us, void (*listener)(void));
 
-uint32_t getSystime_us();
-void blockingwait_ms(uint32_t ms);
+uint8_t isBusy_delayedCallback_A();
+uint8_t isBusy_delayedCallback_B();
+uint8_t isBusy_delayedCallback_C();
+uint8_t isBusy_delayedCallback_D();
 
-typedef void (*DelayedCallback)(void);
-typedef enum{
-	new,
-	running,
-	error,
-	called
-}DelayedCallbackStatus;
-typedef struct{
-	uint32_t time_us;
-	DelayedCallbackStatus status;
-	DelayedCallback callback;
-} DelayedCallbackHandler;
+void abort_delayedCallback_A();
+void abort_delayedCallback_B();
+void abort_delayedCallback_C();
+void abort_delayedCallback_D();
 
-DelayedCallbackHandler delayedCallback(uint32_t time_us, void (*listener)(void));
-void abortDelayedCallback(DelayedCallbackHandler dch);
+void waitBLOCKING(uint32_t ms);
 
 //========================= UART ===================================
 void initUART();
@@ -227,8 +226,6 @@ void resetNrImpulses_encoderSignalA();
 #define MAX_CALIBRATION_POTI_VALUE 0b111111111111 // 12bit ADC
 uint32_t measAnalog_encoderCalibrationPoti_BLOCKING();
 void switch_encoderPositionPin(uint8_t state);
-
-#endif /* INC_BLDC_DRIVER_HAL_H_ */
 
 
 #endif /* PLATTFORMAPI_H_ */
