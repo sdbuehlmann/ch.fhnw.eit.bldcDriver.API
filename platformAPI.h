@@ -12,42 +12,44 @@
 
 // =============== type definitions ===========================================================================================
 typedef enum {
-	phaseA, phaseB, phaseC
+	phase_A, phase_B, phase_C
 
 } Phase;
 
 typedef enum {
-	highside, lowside
+	bridgeside_highside, bridgeside_lowside
 } Bridgeside;
 
 typedef enum {
-	true, false
+	boolean_true, boolean_false
 } Boolean;
 
 typedef enum {
-	rising, falling
+	edge_rising, edge_falling
 } Edge;
 
 typedef enum {
-	running, started, error
+	adcStatus_running, adcStatus_started, adcStatus_error
 } ADCStatus;
 
 typedef enum {
-	negative_torque, positive_torque
+	controlSignalType_negative_torque, controlSignalType_positive_torque
 } ControlSignalType;
 
+typedef (*StartDelayedCallback)(uint32_t timeToCall_us);
 typedef (*DelayedCallback)(void);
 typedef enum {
-	ready, running
+	delayedCallbackStatus_ready, delayedCallbackStatus_running
 } DelayedCallbackStatus;
 typedef struct {
 	DelayedCallback callback;
+	StartDelayedCallback start;
 	DelayedCallbackStatus status;
 	uint32_t timestampRegistered_us;
 	uint32_t timeUntilCallback_us;
 } DelayedCallbackHandle;
 typedef enum {
-	registered, error
+	delayedCallbackFeedback_registered, delayedCallbackFeedback_error
 } DelayedCallbackFeedback;
 
 // =============== functions ==================================================================================================
