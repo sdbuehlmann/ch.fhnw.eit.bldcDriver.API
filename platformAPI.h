@@ -36,9 +36,9 @@ typedef enum {
 	negative_torque, positive_torque
 } ControlSignalType;
 
-typedef (*DelayedCallback)(DelayedCallbackHandle handle);
+typedef (*DelayedCallback)(void);
 typedef enum {
-	registered, error, called
+	ready, running
 } DelayedCallbackStatus;
 typedef struct {
 	DelayedCallback callback;
@@ -46,6 +46,9 @@ typedef struct {
 	uint32_t timestampRegistered_us;
 	uint32_t timeUntilCallback_us;
 } DelayedCallbackHandle;
+typedef enum {
+	registered, error
+} DelayedCallbackFeedback;
 
 // =============== functions ==================================================================================================
 // --------------- serializing ------------------------------------------------------------------------------------------------
@@ -95,28 +98,27 @@ void setDCCalBridgeDriver(Boolean dcCal);
 
 // --------------- systime ----------------------------------------------------------------------------------------------------
 uint32_t getSystimeUs();
-DelayedCallbackHandle startDelayedCallback(uint32_t timeUntilCallback_us);
+DelayedCallbackFeedback startDelayedCallback(uint32_t timeUntilCallback_us);
 
 void wait_ms(uint32_t ms);
 
-//========================= UART ===================================
-// ----- to be implemented------------------------------------
+// --------------- uart ------------------------------------------------------------------------------------------------------
+// to be implemented:
 uint8_t event_uartDataReceived();
-// -----------------------------------------------------------
+// ------------------
 void sendUartData(uint8_t data);
 
-//====================== PROGRAMM FLOW ============================
-// ----- to be implemented------------------------------------
+// --------------- programm flow ----------------------------------------------------------------------------------------------
+// to be implemented:
 void startup();
 void proceed();
-void shutdown();
-// -----------------------------------------------------------
+// -------------------
 
-//========================= ENCODER ==============================
-// ----- to be implemented------------------------------------
+// --------------- encoder ----------------------------------------------------------------------------------------------------
+// to be implemented:
 void event_rotaded180Degrees();
 void newData_encoderCalibration(uint32_t encoderCal);
-//-----------------------------------------------
+//--------------------
 
 void enableEncoder(Boolean enable);
 uint32_t getRotadedDegreesEncoder();
