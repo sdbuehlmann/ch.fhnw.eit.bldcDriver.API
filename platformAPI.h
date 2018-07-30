@@ -134,4 +134,9 @@ Boolean isCalibrateEncoder();
 
 void setEncoderCalibrationReferencePosition(Boolean state);
 
+// --------------- error ----------------------------------------------------------------------------------------------------
+// to be implemented:
+void platformError(char msg[], char file[], char line[]);
+//--------------------
+
 #endif /* PLATTFORMAPI_H_ */
