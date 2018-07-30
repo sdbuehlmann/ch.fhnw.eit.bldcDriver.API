@@ -86,6 +86,10 @@ void event_comperatorSignalChanged(Phase phase, Edge edge);
 // -------------------
 void enableComperator(Phase phase, Edge edge, Boolean enable);
 
+Boolean isComperatorASignalHigh();
+Boolean isComperatorBSignalHigh();
+Boolean isComperatorCSignalHigh();
+
 // --------------- gpio's -----------------------------------------------------------------------------------------------------
 Boolean isBoardEnabled();
 Boolean isNFaultFromBridgeDriver();
