@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 
+#include "platformAPIConfig.h"
+// =============== defines ====================================================================================================
+#define PLATFORM_ERROR platformError(__FILE__, __LINE__)
+
 // =============== type definitions ===========================================================================================
 typedef enum {
 	phase_A, phase_B, phase_C
@@ -21,7 +25,7 @@ typedef enum {
 } Bridgeside;
 
 typedef enum {
-	boolean_true, boolean_false
+	false = 0, true = 1
 } Boolean;
 
 typedef enum {
@@ -33,14 +37,21 @@ typedef enum {
 } ADCStatus;
 
 typedef enum {
+	uartStatus_ok, uartStatus_tooMouchData
+} UARTStatus;
+
+
+typedef enum {
 	controlSignalType_negative_torque, controlSignalType_positive_torque
 } ControlSignalType;
 
-typedef (*StartDelayedCallback)(uint32_t timeToCall_us);
-typedef (*DelayedCallback)(void);
+typedef void (*StartDelayedCallback)(uint32_t timeToCall_us);
+typedef void (*DelayedCallback)(void);
+
 typedef enum {
 	delayedCallbackStatus_ready, delayedCallbackStatus_running
 } DelayedCallbackStatus;
+
 typedef struct {
 	DelayedCallback callback;
 	StartDelayedCallback start;
@@ -48,53 +59,65 @@ typedef struct {
 	uint32_t timestampRegistered_us;
 	uint32_t timeUntilCallback_us;
 } DelayedCallbackHandle;
+
 typedef enum {
 	delayedCallbackFeedback_registered, delayedCallbackFeedback_error
 } DelayedCallbackFeedback;
 
 // =============== functions ==================================================================================================
+// ***to be implemented******************************************************
+void startup();
+void proceed();
+// **************************************************************************
+
 // --------------- serializing ------------------------------------------------------------------------------------------------
-void entryNonInterruptableSection();
-void leaveNonInterruptableSection();
+void entryNoIRQSection();
+void leaveNoIRQSection();
 
 // --------------- pwm --------------------------------------------------------------------------------------------------------
-#define MAX_PWM_DUTYCYCLE 255
-#define MIN_PWM_DUTYCYCLE 0
+#ifdef PWM
 void setPWMDutyCycle(uint8_t dutyCycle);
 
 void enablePWM(Phase phase, Bridgeside side);
 void disablePWM(Phase phase, Bridgeside side);
+#endif /* PWM */
 
 // --------------- adc --------------------------------------------------------------------------------------------------------
-// to be implemented:
-void newData_currentPhaseA(uint32_t nr_measurements, uint32_t *pBuffer);
-void newData_currentPhaseB(uint32_t nr_measurements, uint32_t *pBuffer);
+#ifdef ADC
+// ***to be implemented******************************************************
+void newData_currentPhaseA(int32_t current_mA, uint32_t range_mA);
+void newData_currentPhaseB(int32_t current_mA, uint32_t range_mA);
 
 void newData_controlSignal(uint32_t controlSignal);
 void newData_mainVoltage(uint32_t mainVoltage);
-// ------------------
+void newData_calibrateEncoder(uint32_t calibrateEncoder);
+// **************************************************************************
 
-ADCStatus startMeasCurrentPhaseA(uint32_t nr_measurements, uint32_t *pBuffer);
-ADCStatus startMeasCurrentPhaseB(uint32_t nr_measurements, uint32_t *pBuffer);
+ADCStatus startMeasCurrentPhaseA();
+ADCStatus startMeasCurrentPhaseB();
 
 ADCStatus startMeasControlSignal();
 ADCStatus startMeasMainVoltage();
+ADCStatus startMeasEncoderCalibration();
+#endif /* ADC */
 
 // --------------- comperators ------------------------------------------------------------------------------------------------
-// to be implemented:
+#ifdef COMPERATORS
+// ***to be implemented******************************************************
 void event_comperatorSignalChanged(Phase phase, Edge edge);
-// -------------------
-void enableComperator(Phase phase, Edge edge, Boolean enable);
+// **************************************************************************
 
-Boolean isComperatorASignalHigh();
-Boolean isComperatorBSignalHigh();
-Boolean isComperatorCSignalHigh();
+void enableComperator(Phase phase, Edge edge, Boolean enable);
+Boolean isComperatorSignalHigh(Phase phase);
+#endif /* COMPERATORS */
 
 // --------------- gpio's -----------------------------------------------------------------------------------------------------
 Boolean isBoardEnabled();
 Boolean isNFaultFromBridgeDriver();
 Boolean isNOCTWFromBridgeDriver();
 Boolean isPWRGDFromBridgeDriver();
+Boolean isEncoderEnabled();
+Boolean isCalibrateEncoder();
 
 ControlSignalType getControlSignalType();
 
@@ -103,28 +126,28 @@ void setEnableBridgeDriver(Boolean enable);
 void setDCCalBridgeDriver(Boolean dcCal);
 
 // --------------- systime ----------------------------------------------------------------------------------------------------
+#ifdef SYSTIME
 uint32_t getSystimeUs();
-DelayedCallbackFeedback startDelayedCallback(uint32_t timeUntilCallback_us);
+DelayedCallbackFeedback startDelayedCallback(uint32_t timeUntilCallback_us, DelayedCallback callback);
 
 void wait_ms(uint32_t ms);
+#endif /* SYSTIME */
 
 // --------------- uart ------------------------------------------------------------------------------------------------------
-// to be implemented:
-uint8_t event_uartDataReceived();
-// ------------------
-void sendUartData(uint8_t data);
+#ifdef UART
+// ***to be implemented******************************************************
+void event_uartDataReceived(uint8_t *pData, uint8_t nrData);
+// **************************************************************************
 
-// --------------- programm flow ----------------------------------------------------------------------------------------------
-// to be implemented:
-void startup();
-void proceed();
-// -------------------
+UARTStatus sendUartData(uint8_t *pData, uint8_t size);
+#endif /* UART */
 
 // --------------- encoder ----------------------------------------------------------------------------------------------------
-// to be implemented:
+#ifdef ENCODER
+// ***to be implemented******************************************************
 void event_rotaded180Degrees();
 void newData_encoderCalibration(uint32_t encoderCal);
-//--------------------
+// **************************************************************************
 
 void enableEncoder(Boolean enable);
 uint32_t getRotadedDegreesEncoder();
@@ -133,14 +156,13 @@ void resetRotadedDegreesEncoder();
 
 Boolean isEncoderSignalA();
 Boolean isEncoderSignalB();
-Boolean isEncoderEnabled();
-Boolean isCalibrateEncoder();
 
 void setEncoderCalibrationReferencePosition(Boolean state);
+#endif /* ENCODER */
 
 // --------------- error ----------------------------------------------------------------------------------------------------
 // to be implemented:
-void platformError(char msg[], char file[], char line[]);
+void platformError(char file[], uint32_t line);
 //--------------------
 
 #endif /* PLATTFORMAPI_H_ */
